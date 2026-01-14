@@ -1,7 +1,12 @@
 # Data Engineering Tech Assessment - Eligibility Pipeline
 
 ## Overview
-Config-driven ingestion pipeline to standardize eligibility data from multiple healthcare partners and output a unified dataset.
+This project implements a config-driven ingestion pipeline that standardizes eligibility data from multiple healthcare partners into a unified output dataset.
+
+## Requirements
+- Python 3.x
+- pandas
+- pyyaml
 
 ## Setup
 ```bash
