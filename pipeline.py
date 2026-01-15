@@ -1,3 +1,15 @@
+from model import EligibilityRecord
+from pathlib import Path
+import yaml
+import pandas as pd
+import re
+from datetime import datetime
+
+BASE_DIR = Path(__file__).resolve().parent
+CONFIG_PATH = BASE_DIR / "config.yaml"
+
+with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+    config = yaml.safe_load(f)
 import re
 import sys
 from datetime import datetime
@@ -75,24 +87,31 @@ def ingest_partner(partner_cfg: dict) -> pd.DataFrame:
 
 
 def main():
-    config_path = sys.argv[1] if len(sys.argv) > 1 else "config.yaml"
-    out_path = sys.argv[2] if len(sys.argv) > 2 else "output/unified_output.csv"
+    config_path = CONFIG_PATH
+    out_path = BASE_DIR / "output" / "unified_output.csv"
 
-    cfg = load_config(config_path)
-    partners = cfg.get("partners", {})
-
+    partners = config.get("partners", {})
     frames = []
+
     for _, partner_cfg in partners.items():
         frames.append(ingest_partner(partner_cfg))
 
     unified = pd.concat(frames, ignore_index=True)
 
     import os
-    os.makedirs("output", exist_ok=True)
+    os.makedirs(BASE_DIR / "output", exist_ok=True)
     unified.to_csv(out_path, index=False)
 
     print(f"✅ Wrote: {out_path}")
     print(unified)
+
+    # Convert to dataclass records
+    records = [
+        EligibilityRecord(**row)
+        for row in unified.to_dict(orient="records")
+    ]
+
+    print(f"Created {len(records)} EligibilityRecord objects")
 
 
 if __name__ == "__main__":
